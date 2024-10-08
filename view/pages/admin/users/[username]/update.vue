@@ -311,7 +311,18 @@ async function getUser(username) {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('mao ni ang oten ni ralp', data.user.first_name) 
+
+      state.user.first_name = data.user.first_name
+      state.user.last_name = data.user.last_name
+      state.user.middle_initial = data.user.middle_initial
+      state.user.gender = data.user.gender
+      state.user.status = data.user.status
+      state.user.phone_number = data.user.phone_number
+      state.user.role = data.user.role
+      state.user.username = data.user.username
+      state.user.password = data.user.password
+      state.user.email = data.user.email
+
       
     } else {
       console.error('Error fetching userrrr:', await response.json());
@@ -329,39 +340,72 @@ const toast = useToast()
 
 
 async function onSubmit() {
-// Do something with data
-console.log(event.data)
+  const { user } = state; // Destructure to make code cleaner
 
-loading.value = true;
-loadIcon.value = 'i-lucide-loader-circle';
-label.value = '';
-name.value = 'success_2'
+  const params = {
+    first_name: user.first_name,
+    last_name: user.last_name,
+    middle_initial: user.middle_initial,
+    gender: user.gender,
+    phone_number: user.phone_number,
+    status: user.status,
+    role: user.role,
+    password: user.password,
+  };
 
-setTimeout(() => {
-    playSound()
-    toast.add({
-        title: 'Updated Successfully!',
-        icon: 'i-lucide-circle-check-big',
-        timeout: 2500,
-        ui: {
-        background : 'dark:bg-blue-700 bg-blue-300', 
-        progress: {
-            background: 'dark:bg-white bg-blue-700 rounded-full'
-        }, 
-        ring: 'ring-1 ring-blue-700 dark:ring-custom-900',
-        default: {
-            closeButton: { 
-            color: 'white',
-            }
-        },
-        icon: 'text-custom-900'
-        },
-    })
-    label.value = 'Update';
-    loading.value = false;
-    navigateTo(`/admin/users/${user.username}`)
-}, 800)
+  try {
+    const response = await $fetch(`http://127.0.0.1:8000/api/users/${user.username}`, {
+      method: 'PUT',
+      body: params,
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('_token')}` // Use template literals for better readability
+      }
+    });
+
+    if (response) {
+      console.log('Updated successfully:', response);
+
+      loading.value = true;
+      loadIcon.value = 'i-lucide-loader-circle';
+      label.value = '';
+      name.value = 'success_2';
+
+      setTimeout(() => {
+        playSound();
+        toast.add({
+          title: 'Updated Successfully!',
+          icon: 'i-lucide-circle-check-big',
+          timeout: 2500,
+          ui: {
+            background: 'dark:bg-blue-700 bg-blue-300',
+            progress: {
+              background: 'dark:bg-white bg-blue-700 rounded-full'
+            },
+            ring: 'ring-1 ring-blue-700 dark:ring-custom-900',
+            default: {
+              closeButton: {
+                color: 'white',
+              }
+            },
+            icon: 'text-custom-900'
+          },
+        });
+        label.value = 'Update';
+        loading.value = false;
+        navigateTo(`/admin/users/${user.username}`);
+      }, 800);
+    }
+  } catch (error) {
+    // Check if the error response exists
+    state.errors = error.response || { message: 'An error occurred' };
+    console.error('Error response:', error.response);
+    console.error('Error:', error);
+  }
 }
+
+
+
+
 
 const links = [{
 label: 'Users',
