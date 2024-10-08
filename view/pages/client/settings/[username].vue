@@ -69,15 +69,15 @@
               <template #default="{ error }">
                 <UInput type="text" color="gray" v-model="state.user.first_name" size="md" :ui="{
                   rounded: 'rounded',
-                  color: error ?
+                  color: state.errors ?
                     { red: { outline: 'bg-red-100 dark:bg-red-50 text-custom-900 dark:text-custom-900 focus:ring-1 focus:ring-red-400 border-2 border-red-400 focus:border-red-400 active:ring-red-400 active:border-red-400' } } : { gray: { outline: 'dark:bg-custom-100 dark:text-custom-900' } }
                 }" />
               </template>
 
               <template #error="{ error }">
                 <span
-                  :class="[error ? 'text-red-500 dark:text-red-400 text-xs font-bold' : 'text-primary-500 dark:text-primary-400']">
-                  {{ error ? error : undefined }}
+                  :class="[state.errors ? 'text-red-500 dark:text-red-400 text-xs font-bold' : 'text-primary-500 dark:text-primary-400']">
+                  {{ state.errors && state.errors._data && state.errors._data.errors && state.errors._data.errors.password && state.errors._data.errors.password[0] }}
                 </span>
               </template>
             </UFormGroup>

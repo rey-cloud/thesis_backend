@@ -13,14 +13,16 @@ Route::post('auth/login', [AuthController::class, 'authenticateUser']);
 Route::post('login/admin', [AuthController::class, 'loginAdmin']);
 Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'getUser']);
 Route::middleware('auth:sanctum')->post('/user/logout', [AuthController::class, 'logoutUser']);
-Route::middleware('auth:sanctum')->put('/user/update', [AuthController::class, 'updateUser']);
+Route::middleware('auth:sanctum')->put('/user/update', [AuthController::class, 'updateMainUser']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 
 Route::apiResource('motions', MotionsController::class);
 
 
-Route::apiResource('notifications', NotificationsController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('notifications', NotificationsController::class);
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {

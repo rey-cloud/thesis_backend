@@ -21,6 +21,9 @@ export async function fetchNotifications() {
   try {
     const response = await fetch('http://127.0.0.1:8000/api/notifications', {
       method: 'GET',
+      headers: {
+        Authorization: 'Bearer ' + localStorage.getItem('_token') // Use 'Bearer' prefix for token
+      }
     });
 
     if (!response.ok) {

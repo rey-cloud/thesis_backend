@@ -65,6 +65,7 @@
           <span
             :class="[state.errors ? 'text-red-500 dark:text-red-400 text-xs font-bold' : 'text-custom-500 dark:text-custom-400']">
             {{ state.errors && state.errors._data && state.errors._data.errors && state.errors._data.errors.username && state.errors._data.errors.username[0] }}
+            {{ state.errors && state.errors._data && state.errors._data.message }}
           </span>
         </template>
       </UFormGroup>
@@ -145,16 +146,19 @@ async function onSubmit() {
     const response = await $fetch(`http://127.0.0.1:8000/api/login/admin`, {
       method: 'POST',
       body: params
-    })
+    });
+
     if (response) {
-      console.log(response)
-      localStorage.setItem('_token', response.token)
-      navigateTo('/auth/otp')
-    }
+      console.log(response); // response should already be a JavaScript object
+
+      // Check if the token is in the correct place in the response
+      localStorage.setItem('_token', response.token);
+      navigateTo('/auth/otp');
+    } 
   } catch (error) {
+
     state.errors = error.response
-    console.log(error.response);
-    console.log('error', error)
+    console.log('error error error error', error)
   }
 }
 

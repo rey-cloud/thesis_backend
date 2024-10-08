@@ -6,6 +6,7 @@ use App\Http\Requests\StoreNotificationsRequest;
 use App\Http\Requests\UpdateNotificationsRequest;
 use Illuminate\Http\Request;
 use App\Models\Notifications;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationsController extends Controller
 {
@@ -14,8 +15,15 @@ class NotificationsController extends Controller
      */
     public function index()
     {
-        return Notifications::with(['motion', 'user'])->get();
+        // Get the authenticated user's ID
+        $userId = Auth::id();
+        
+        // Return notifications for the authenticated user
+        return Notifications::with(['motion', 'user'])
+            ->where('user_id', $userId)
+            ->get();
     }
+
 
     /**
      * Store a newly created notification in storage.

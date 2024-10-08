@@ -22,12 +22,28 @@ class AuthController extends Controller
 
         $user = User::where('username', $username)->first();
 
+        // Check if the user exists and if the password is correct
         if (!$user || !Hash::check($password, $user->password)) {
             throw ValidationValidationException::withMessages([
                 'username' => ['Invalid login credentials.'],
             ]);
         }
 
+        // Check if the user's status is inactive
+        if ($user->status === 'inactive') {
+            throw ValidationValidationException::withMessages([
+                'username' => ['Your account is inactive. Please contact support.'],
+            ]);
+        }
+
+        // Check if the user is admin or superadmin and block access
+        if (in_array($user->role, ['admin', 'superadmin'])) {
+            throw ValidationValidationException::withMessages([
+                'username' => ['Access denied. Clients only.'],
+            ]);
+        }
+
+        // Create token for authenticated client user
         $response = (object) [
             'user' => $user,
             'token' => $user->createToken('auth-token')->plainTextToken
@@ -35,6 +51,23 @@ class AuthController extends Controller
 
         return new AuthenticatedUserResource($response);
     }
+
+
+    public function updateMainUser(UpdateUserRequest $request)
+    {
+        // Retrieve the authenticated user
+        $user = $request->user();
+
+        // Update the user with validated data from the request
+        $user->update($request->validated());
+
+        // Return a success response
+        return response()->json([
+            'user' => $user,
+            'message' => 'User updated successfully.'
+        ]);
+    }
+
 
 
     public function register(AuthRequest $request)
@@ -87,6 +120,13 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'The provided credentials are incorrect.'
             ], 401); // Return 401 Unauthorized
+        }
+
+        // Check if the user's status is inactive
+        if ($user->status === 'inactive') {
+            return response()->json([
+                'message' => 'Your account is inactive. Please contact support.'
+            ], 403); // Return 403 Forbidden for inactive status
         }
     
         // Check if the user is an admin or superadmin
